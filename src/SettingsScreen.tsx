@@ -11,20 +11,9 @@ export type SettingsDisplayPropsType = {
     setToLocalStorage: (title: string, item: any) => void
 }
 
-
 export function SettingsScreen(props: SettingsDisplayPropsType) {
     const [value, setValue] = useState({maxValue: 0, minValue: 0})
     const buttonStatus = (value["maxValue"] === 0 && value["minValue"] === 0)
-
-    /*const getLocalStorage = (title: string) => {
-        let valueAsString = localStorage.getItem(title)
-        if (valueAsString) {
-            return JSON.parse(valueAsString)
-        }
-    }
-    const setToLocalStorage = (title: string, item: string) => {
-        localStorage.setItem(title, JSON.stringify(value[item]))
-    }*/
 
     useEffect( () => {
         let newMaxValue = props.getLocalStorage('maxCounterValue')
@@ -65,9 +54,8 @@ export function SettingsScreen(props: SettingsDisplayPropsType) {
         }
     }
 
-
     const buttonAndDisplayState = () => {
-        props.buttonAndDisplayState(true, false)
+        props.buttonAndDisplayState(true, true)
     }
 
     return (

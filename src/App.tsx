@@ -27,7 +27,7 @@ function App() {
   appData["maximumSetCounterValue"] = getLocalStorage('maxCounterValue')    //макс стартовое значение из настроек
 
   const [display, setDisplay] = useState(true)                                         //перекдючение экранов
-  const [counterValue, setCounterValue] = useState(appData["minimumSetCounterValue"])              //значение счетчика    //defStor.min
+  const [counterValue, setCounterValue] = useState(appData["minimumSetCounterValue"])              //значение счетчика
   const [resetButtonState, setResetButtonState] = useState(true)                    //состояние кнопки сброса
   const [incrementButtonState, setIncrementButtonState] = useState(                      //состояние кнопки увеличения
       appData["maximumSetCounterValue"] === 0         //при старте проверка на наличие значения в localstorage
@@ -69,6 +69,7 @@ function App() {
   const buttonAndDisplayState = (display: boolean, button: boolean) => {
     setDisplay(display)
     setResetButtonState(button)
+    setIncrementButtonState(appData["maximumSetCounterValue"] === 0)//проверка при каждой установке нового значения
   }
 
   return (

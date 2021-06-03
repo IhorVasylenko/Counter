@@ -14,6 +14,7 @@ export type MainScreenPropsType = {
 
 
 export function MainScreen(props: MainScreenPropsType) {
+    debugger
     const buttonAndDisplayState = () => {
         props.buttonAndDisplayState(false, true)
     }
