@@ -9,8 +9,7 @@ export type ButtonComponentPropsType = {
     callback: () => void
 };
 
-export const ButtonComponent: React.FC<ButtonComponentPropsType> =  (props) => {
-
+export const ButtonComponent: React.FC<ButtonComponentPropsType> =  React.memo((props) => {
     const {
         value,
         status,
@@ -24,4 +23,4 @@ export const ButtonComponent: React.FC<ButtonComponentPropsType> =  (props) => {
             {value}
         </IconButton>
     );
-}
+})

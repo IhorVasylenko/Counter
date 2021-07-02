@@ -2,12 +2,11 @@ import {AppRootStateType} from "../store/store";
 
 export const loadState = () => {
     try {
-        const minValue = localStorage.getItem("minPossibleValue", );
-        const maxValue = localStorage.getItem("maxPossibleValue", );
-        if (minValue === null || maxValue === null) {
+        const counterAsString = localStorage.getItem("counter");
+        if (counterAsString === null) {
             return undefined;
         }
-        return (JSON.parse(minValue), JSON.parse(maxValue));
+        return JSON.parse(counterAsString)
     } catch (err) {
         return undefined;
     }
@@ -15,8 +14,7 @@ export const loadState = () => {
 
 export const saveState = (state: AppRootStateType) => {
     try {
-        localStorage.setItem("minPossibleValue", JSON.stringify(state.settingsScreen.value.minPossibleValue));
-        localStorage.setItem("maxPossibleValue", JSON.stringify(state.settingsScreen.value.maxPossibleValue));
+        localStorage.setItem("counter", JSON.stringify(state));
     } catch {
         // ignore write errors
     }

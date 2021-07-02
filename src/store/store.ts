@@ -1,5 +1,5 @@
 import {combineReducers, createStore} from "redux";
-import {settingsScreenReducer} from "./appReducer";
+import { settingsScreenReducer} from "./appReducer";
 import {loadState, saveState} from "../utils/localstorage-utils";
 import { throttle } from "lodash";
 

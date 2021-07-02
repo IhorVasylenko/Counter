@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useCallback} from 'react';
+import React, {ChangeEvent, useCallback, useEffect} from 'react';
 import './App.css';
 import {Container, Paper} from "@material-ui/core";
 import {MainScreen} from "./components/MainScreen";
@@ -14,91 +14,59 @@ function App() {
   const appData = useSelector<AppRootStateType, AppInitialStateType>(state => state.settingsScreen);
   const dispatch: Dispatch<any> = useDispatch();
 
+  useEffect( () => {
+    dispatch(actions.resetCounterValueToMinValue(appData.minPossibleValue))
+  }, [appData.mainDisplayIsShown] );
 
-  //сброс счетчика
+  // reset counter
   const resetCounter = useCallback(() => {
-    dispatch(actions.incrementCounterValue(appData.value.minPossibleValue));
+    dispatch(actions.resetCounterValueToMinValue(appData.minPossibleValue));
     dispatch(actions.changeResetButtonState(true));
     dispatch(actions.changeIncrementButtonState(false));
-  }, [dispatch]);
+  }, [dispatch, appData.minPossibleValue]);
 
-
-  const buttonAndDisplayState = (display: boolean, button: boolean) => {
+  // function to change screen state and reset button
+  const buttonAndDisplayState = useCallback((display: boolean, button: boolean) => {
     dispatch(actions.changeDisplayState(display));
     dispatch(actions.changeResetButtonState(button));
-    //проверка при каждой установке нового значения
-    dispatch(actions.changeIncrementButtonState(appData.value.maxPossibleValue === 0)) ;
-  };
+    // check every time a new value is set
+    dispatch(actions.changeIncrementButtonState(appData.maxPossibleValue === 0));
+  }, [dispatch, appData.maxPossibleValue]);
 
-
-  //изменение состояния экрана на экран settings
+  // change screen state to settings screen
   const changeDisplayAndButtonStateToSettings = useCallback(() => {
     buttonAndDisplayState(false, true)
-  }, []);
+  }, [buttonAndDisplayState]);
 
-  //изменение состояния экрана на экран counter
+  // changing the screen state to the counter screen
   const changeDisplayAndButtonStateToCounter = useCallback(() => {
     buttonAndDisplayState(true, true)
-  }, []);
+  }, [buttonAndDisplayState]);
 
+  // set button state
+  const buttonStatus = (appData.minPossibleValue === 0 && appData.maxPossibleValue === 0);
 
-  //состояние кнопки set
-  const buttonStatus = (appData.value.minPossibleValue === 0 && appData.value.maxPossibleValue === 0);
-
-
-  // увеличение счетчика
+  // increase counter
   const increase = useCallback(() => {
-    let newCounterValue;
-    if (appData.value.minPossibleValue < appData.value.maxPossibleValue) {
-      if (appData.value.minPossibleValue + 1 === appData.value.maxPossibleValue) {        //блокировка кнопки увеличения
-        dispatch(actions.changeIncrementButtonState(true))
-      }
-      newCounterValue = appData.value.minPossibleValue + 1
-    } else {
-      newCounterValue = appData.value.maxPossibleValue
-    }
-    dispatch(actions.incrementCounterValue(newCounterValue))
-    dispatch(actions.changeResetButtonState(false));
+    dispatch(actions.incrementCounterValue())
   }, [dispatch]);
 
-  // увеличение минимального значения для счетчика
+  // increasing the minimum value for the counter
   const incrementMinValue = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    let newMinValue = JSON.parse(e.currentTarget.value)
-    if (newMinValue < 0) {
-      dispatch(actions.incrementPossibleValue("minPossibleValue", 0));
-    } else if (newMinValue >= appData.maxAllowedCounterValue ) {
-      dispatch(actions.incrementPossibleValue("minPossibleValue", appData.maxAllowedCounterValue - 1));
-    } else if (appData.value.maxPossibleValue === 0 || newMinValue === appData.value.maxPossibleValue) {
-      dispatch(actions.incrementPossibleValue("minPossibleValue", newMinValue));
-      dispatch(actions.incrementPossibleValue("maxPossibleValue", newMinValue + 1));
-    } else {
-      dispatch(actions.incrementPossibleValue("minPossibleValue", newMinValue));
-    }
+    dispatch(actions.incrementPossibleMinValue(e.currentTarget.valueAsNumber));
   }, [dispatch]);
 
-  // увеличение максимального значения для счетчика
+  // increasing the maximum value for the counter
   const incrementMaxValue = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    let newMaxValue = JSON.parse(e.currentTarget.value);
-    if (newMaxValue <= 0) {
-      dispatch(actions.incrementPossibleValue("minPossibleValue", 0));
-      dispatch(actions.incrementPossibleValue("maxPossibleValue", 0));
-    } else if (newMaxValue >= appData.maxAllowedCounterValue) {
-      dispatch(actions.incrementPossibleValue("maxPossibleValue", appData.maxAllowedCounterValue));
-    } else if (newMaxValue === appData.value.minPossibleValue) {
-      dispatch(actions.incrementPossibleValue("minPossibleValue", newMaxValue - 1));
-      dispatch(actions.incrementPossibleValue("maxPossibleValue", newMaxValue));
-    } else {
-      dispatch(actions.incrementPossibleValue("maxPossibleValue", newMaxValue));
-    }
+    dispatch(actions.incrementPossibleMaxValue(e.currentTarget.valueAsNumber));
   }, [dispatch]);
-
 
 
   return (
       <div className="App">
         <Container maxWidth={"xs"} fixed style={{padding: 0}}>
           <Paper elevation={7} style={{borderRadius: "20px"}}>
-            {(appData.maimDisplayIsShown)
+            {(appData.mainDisplayIsShown)
                 ? <MainScreen
                     statusIncrementButton={appData.incrementButtonIsDisabled}
                     statusResetButton={appData.resetButtonIsDisabled}
@@ -112,8 +80,8 @@ function App() {
                     changeDisplayAndButtonState={changeDisplayAndButtonStateToCounter}
                     incrementMinValue={incrementMinValue}
                     incrementMaxValue={incrementMaxValue}
-                    minPossibleValue={appData.value.minPossibleValue}
-                    maxPossibleValue={appData.value.maxPossibleValue}
+                    minPossibleValue={appData.minPossibleValue}
+                    maxPossibleValue={appData.maxPossibleValue}
                 />
             }
           </Paper>
@@ -123,126 +91,3 @@ function App() {
 }
 
 export default App
-
-
-/*import React, {useState} from 'react';
-import './App.css';
-import {Container, Paper} from "@material-ui/core";
-import {MainScreen} from "./components/MainScreen";
-import {SettingsDisplayContainer} from "./components/SettingsScreenContainer";
-
-
-const appData = {
-  minimumSetCounterValue: 0,
-  maximumSetCounterValue: 0,
-};
-
-
-const getLocalStorage = (title: string) => {
-  let valueAsString = localStorage.getItem(title);
-
-  if (valueAsString) {
-    return JSON.parse(valueAsString)
-  } else return 0
-};
-
-
-const setToLocalStorage = (title: string, item: any) => {
-  localStorage.setItem(title, JSON.stringify(item))
-};
-
-
-function App() {
-  //переменная для ограничения максимального значения счетчика
-  const maxAllowedCounterValue = 9;
-
-  //мин стартовое значение из настроек
-  appData["minimumSetCounterValue"] = getLocalStorage('minCounterValue');
-  //макс стартовое значение из настроек
-  appData["maximumSetCounterValue"] = getLocalStorage('maxCounterValue');
-
-  //значение счетчика
-  const [minCounterValue, setMinCounterValue] = useState(appData["minimumSetCounterValue"]);
-  const [maxCounterValue, setMaxCounterValue] = useState(appData["maximumSetCounterValue"]);
-
-  //перекдючение экранов
-  const [display, setDisplay] = useState(true);
-
-  //состояние кнопки сброса
-  const [resetButtonState, setResetButtonState] = useState(true);
-
-  //состояние кнопки увеличения
-  //при старте проверка на наличие значения в localstorage
-  const [incrementButtonState, setIncrementButtonState] = useState(appData["maximumSetCounterValue"] === 0);
-
-  //обновление стартового значения счетчика при изминении настройки мин значения
-  const setNewStartCounterValue = (newStartValue: number) => setMinCounterValue(newStartValue);
-  const setNewMaxCounterValue = (newMaxValue: number) => setMaxCounterValue(newMaxValue);
-
-  // увеличение счетчика
-  const increase = () => {
-    let newCounterValue;
-    if (minCounterValue < appData["maximumSetCounterValue"]) {
-      if (minCounterValue + 1 === appData["maximumSetCounterValue"]) {        //блокировка кнопки увеличения (костыль)
-        setIncrementButtonState(true)
-      }
-      newCounterValue = minCounterValue + 1
-    } else {
-      newCounterValue = appData["maximumSetCounterValue"]
-    }
-    setMinCounterValue(newCounterValue);
-    setResetButtonState(false);
-  };
-
-  //сброс счетчика
-  const resetCounter = () => {
-    setMinCounterValue(appData["minimumSetCounterValue"]);
-    setResetButtonState(true);
-    setIncrementButtonState(false);
-  };
-
-  const buttonAndDisplayState = (display: boolean, button: boolean) => {
-    setDisplay(display);
-    setResetButtonState(button);
-
-    //проверка при каждой установке нового значения
-    setIncrementButtonState(appData["maximumSetCounterValue"] === 0);
-  };
-
-
-  //изминение дисплея на настройки
-  const changeDisplayAndButtonStateToSettings = () => {
-    buttonAndDisplayState(false, true)
-  };
-
-  return (
-      <div className="App">
-        <Container maxWidth={"xs"} fixed style={{padding: 0}}>
-          <Paper elevation={7} style={{borderRadius: "20px"}}>
-            {(display)
-                ? <MainScreen
-                    statusIncrementButton={incrementButtonState}
-                    statusResetButton={resetButtonState}
-                    counterValue={minCounterValue}
-                    increase={increase}
-                    resetCounter={resetCounter}
-                    changeDisplayAndButtonState={changeDisplayAndButtonStateToSettings}/>
-                : <SettingsDisplayContainer
-                    minCounterValue={minCounterValue}
-                    maxCounterValue={maxCounterValue}
-                    maxAllowedCounterValue={maxAllowedCounterValue}
-                    buttonAndDisplayState={buttonAndDisplayState}
-                    setNewStartCounterValue={setNewStartCounterValue}
-                    setNewMaxCounterValue={setNewMaxCounterValue}
-                    getLocalStorage={getLocalStorage}
-                    setToLocalStorage={setToLocalStorage}
-                />
-            }
-          </Paper>
-        </Container>
-      </div>
-  );
-}
-
-export default App
-*/

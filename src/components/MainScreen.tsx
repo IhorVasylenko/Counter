@@ -43,19 +43,19 @@ export const MainScreen: React.FC<MainScreenPropsType> = React.memo((props) => {
                     color: statusIncrementButton ? "red" : "black",
                 }}>
                 <div color={statusResetButton ? "red" : "black"} style={{margin: " 0 auto",}}>
-                   {counterValue}
+                    {counterValue}
                 </div>
             </Grid>
             <Grid
                 item
-                style={(statusIncrementButton) ? {paddingBottom: "12px",} : {paddingBottom: "33px",}}>
+                style={(statusIncrementButton) ? {paddingBottom: "15px",} : {paddingBottom: "33px",}}>
                 <ButtonComponent icon={<AddCircle/>} value={'increment'} status={statusIncrementButton}
                                  callback={increase}/>
                 <ButtonComponent icon={<Cached/>} value={'reset'} status={statusResetButton}
                                  callback={resetCounter}/>
                 <ButtonComponent icon={<Settings/>} value={'settings'}
-                                 /*при необходимости можно заблокировать кнопку настроек до конца выполнения задачи*/
-                                 status={props.statusResetButton ? !props.statusResetButton: props.statusResetButton}
+                    /*if necessary, you can lock the settings button until the end of the task*/
+                                 status={statusResetButton ? !statusResetButton: statusResetButton}
                                  callback={changeDisplayAndButtonState}/>
                 {
                     (statusIncrementButton)

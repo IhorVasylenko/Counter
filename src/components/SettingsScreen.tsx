@@ -1,5 +1,5 @@
 import {ButtonComponent} from "./ButtonComponent";
-import React, {ChangeEvent, useEffect} from "react";
+import React, {ChangeEvent} from "react";
 import {Grid, TextField} from "@material-ui/core";
 import {Settings} from "@material-ui/icons";
 
@@ -25,8 +25,6 @@ export const SettingsScreen: React.FC<SettingsDisplayPropsType> = React.memo((pr
         incrementMinValue,
         changeDisplayAndButtonState,
     } = props;
-
-    // useEffect( () => {}, []);
 
     return (
         <Grid
